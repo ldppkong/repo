@@ -5,15 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LDPPKONG 越狱源</title>
 <style>
-/* 样式同之前 */
+body { font-family: Arial, sans-serif; background: #f5f5f5; margin:0; padding:0; }
+header { background:#333; color:#fff; text-align:center; padding:20px; }
+header h1 { margin:0; }
+header p, header code { margin:5px 0; }
+.container { display: flex; flex-wrap: wrap; justify-content: center; padding:20px; }
+.card { background:#fff; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1); margin:10px; padding:15px; width:200px; text-align:center; }
+.card img { width:100px; height:100px; object-fit:contain; margin-bottom:10px; }
+.card h2 { font-size:16px; margin:5px 0; }
+.card p { font-size:14px; color:#555; margin:5px 0; }
+footer { text-align:center; padding:10px; font-size:12px; color:#888; }
 </style>
 </head>
 <body>
 <header>
 <h1>LDPPKONG 越狱源</h1>
-<p>在 Sileo 中添加源地址：</p>
+<p>在 Sileo 中添加源：</p>
 <a class="btn" href="sileo://source/${repo_url}">一键添加到 Sileo</a>
-<p style="margin-top:10px;"><code>${repo_url}</code></p>
+<p><code>${repo_url}</code></p>
 </header>
 
 <div class="container" id="plugin-container">
@@ -23,7 +32,60 @@
 <footer>© 2025 LDPPKONG Repo — Powered by GitHub Pages</footer>
 
 <script>
-// JS 读取 Packages 并生成插件列表
+async function loadPackages() {
+    const url = './Packages';
+    try {
+        const res = await fetch(url);
+        const text = await res.text();
+        const plugins = text.split('\n\n'); // 每个包之间空行分割
+        const container = document.getElementById('plugin-container');
+        container.innerHTML = '';
+
+        plugins.forEach(pkg => {
+            const lines = pkg.split('\n');
+            const info = {};
+            lines.forEach(line => {
+                const idx = line.indexOf(':');
+                if (idx>0) {
+                    const key = line.substring(0, idx).trim();
+                    const value = line.substring(idx+1).trim();
+                    info[key] = value;
+                }
+            });
+            if(info.Package){
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                // 尝试使用包名生成图标 URL，如果有自定义图标可以改这里
+                const img = document.createElement('img');
+                img.src = `https://raw.githubusercontent.com/ldppkong/jailbreak-repo/main/debs/${info.Package}.png`;
+                img.onerror = () => { img.src = 'https://via.placeholder.com/100?text=No+Icon'; };
+
+                const title = document.createElement('h2');
+                title.textContent = info.Package;
+
+                const version = document.createElement('p');
+                version.textContent = '版本: ' + (info.Version || '未知');
+
+                const desc = document.createElement('p');
+                desc.textContent = info.Description || '';
+
+                card.appendChild(img);
+                card.appendChild(title);
+                card.appendChild(version);
+                card.appendChild(desc);
+
+                container.appendChild(card);
+            }
+        });
+
+    } catch(e) {
+        console.error(e);
+        document.getElementById('plugin-container').innerHTML = '<p>加载插件列表失败，请稍后重试。</p>';
+    }
+}
+
+loadPackages();
 </script>
 </body>
 </html>
