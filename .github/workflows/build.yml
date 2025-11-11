@@ -26,21 +26,23 @@ jobs:
       - name: Ensure debs folder exists
         run: mkdir -p debs
 
-      - name: Generate Packages and Release
+      - name: Generate Packages
         run: |
+          # 生成 Packages 文件和压缩文件
           dpkg-scanpackages ./debs /dev/null > Packages
           gzip -k -f Packages
 
-          cat <<EOF > Release
-Origin: LDPPKONG Repo
-Label: LDPPKONG Repo
-Suite: stable
-Version: 1.0
-Codename: ios
-Architectures: iphoneos-arm64
-Components: main
-Description: LDPPKONG Jailbreak Repo
-EOF
+      - name: Generate Release
+        run: |
+          # 严格生成 Release 文件，Sileo 兼容 arm64
+          printf "Origin: LDPPKONG Repo\n" > Release
+          printf "Label: LDPPKONG Repo\n" >> Release
+          printf "Suite: stable\n" >> Release
+          printf "Version: 1.0\n" >> Release
+          printf "Codename: ios\n" >> Release
+          printf "Architectures: iphoneos-arm64\n" >> Release
+          printf "Components: main\n" >> Release
+          printf "Description: LDPPKONG Jailbreak Repo\n" >> Release
 
       - name: Generate index.html
         run: |
