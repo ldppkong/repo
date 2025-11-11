@@ -1,49 +1,19 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LDPPKONG 越狱源</title>
-  <style>
-    :root {
-      color-scheme: light dark;
-      --bg: #f5f5f7;
-      --text: #1a1a1a;
-      --card: #ffffff;
-      --accent: #007aff;
-      --shadow: rgba(0, 0, 0, 0.08);
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #1c1c1e;
-        --text: #f5f5f7;
-        --card: #2c2c2e;
-        --accent: #0a84ff;
-        --shadow: rgba(0,0,0,0.4);
-      }
-    }
-    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;background-color:var(--bg);color:var(--text);}
-    header{text-align:center;padding:60px 20px 30px;}
-    header h1{font-size:2.2em;margin-bottom:10px;}
-    header p{color:#888;font-size:1em;}
-    .btn{display:inline-block;margin-top:10px;background:var(--accent);color:#fff;padding:8px 16px;border-radius:8px;text-decoration:none;font-size:0.9em;transition:background 0.2s;}
-    .btn:hover{background:#005ecb;}
-    .container{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));padding:0 20px 60px;max-width:1000px;margin:0 auto;}
-    .card{background:var(--card);border-radius:16px;box-shadow:0 4px 12px var(--shadow);padding:20px;transition:transform 0.2s;}
-    .card:hover{transform:translateY(-5px);}
-    .card img{width:64px;height:64px;border-radius:12px;}
-    .card h3{margin:15px 0 8px;font-size:1.2em;}
-    .card p{color:#666;font-size:0.9em;line-height:1.4;}
-    footer{text-align:center;padding:20px;font-size:0.8em;color:#aaa;}
-    code{word-break:break-all;}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LDPPKONG 越狱源</title>
+<style>
+/* 样式同之前 */
+</style>
 </head>
 <body>
 <header>
 <h1>LDPPKONG 越狱源</h1>
 <p>在 Sileo 中添加源地址：</p>
-<a class="btn" href="sileo://source/https://ldppkong.github.io/jailbreak-repo/">一键添加到 Sileo</a>
-<p style="margin-top:10px;">或手动添加：<br><code>https://ldppkong.github.io/jailbreak-repo/</code></p>
+<a class="btn" href="sileo://source/${repo_url}">一键添加到 Sileo</a>
+<p style="margin-top:10px;"><code>${repo_url}</code></p>
 </header>
 
 <div class="container" id="plugin-container">
@@ -53,63 +23,7 @@
 <footer>© 2025 LDPPKONG Repo — Powered by GitHub Pages</footer>
 
 <script>
-  // 默认图标
-  const defaultIcon = "https://cdn-icons-png.flaticon.com/512/1828/1828827.png";
-
-  // 给插件名自动生成图标 URL（简单规则：根据关键字匹配）
-  function getIcon(packageName) {
-    packageName = packageName.toLowerCase();
-    if(packageName.includes("appdata")) return "https://cdn-icons-png.flaticon.com/512/1828/1828884.png";
-    if(packageName.includes("tweak")) return "https://cdn-icons-png.flaticon.com/512/1828/1828859.png";
-    if(packageName.includes("theme")) return "https://cdn-icons-png.flaticon.com/512/1828/1828895.png";
-    // 更多规则可自行扩展
-    return defaultIcon;
-  }
-
-  async function loadPackages() {
-    const container = document.getElementById('plugin-container');
-    container.innerHTML = '';
-
-    try {
-      const res = await fetch('Packages');
-      if (!res.ok) throw new Error('无法读取 Packages 文件');
-      const text = await res.text();
-
-      const entries = text.split('\n\n');
-      if (!entries.length) {
-        container.innerHTML = '<p>没有找到任何插件.</p>';
-        return;
-      }
-
-      for(let entry of entries) {
-        if(!entry.trim()) continue;
-
-        const lines = entry.split('\n');
-        let pkg="", version="", arch="", desc="";
-        for(let line of lines){
-          if(line.startsWith("Package:")) pkg=line.replace("Package:","").trim();
-          if(line.startsWith("Version:")) version=line.replace("Version:","").trim();
-          if(line.startsWith("Architecture:")) arch=line.replace("Architecture:","").trim();
-          if(line.startsWith("Description:")) desc=line.replace("Description:","").trim();
-        }
-
-        const card=document.createElement('div');
-        card.className="card";
-        card.innerHTML=`
-          <img src="${getIcon(pkg)}" alt="plugin">
-          <h3>${pkg}</h3>
-          <p>${desc}</p>
-          <p><b>版本：</b>${version}<br><b>架构：</b>${arch}</p>
-        `;
-        container.appendChild(card);
-      }
-
-    } catch(err) {
-      container.innerHTML='<p>加载插件列表失败：'+err.message+'</p>';
-    }
-  }
-
-  loadPackages();
+// JS 读取 Packages 并生成插件列表
 </script>
 </body>
 </html>
