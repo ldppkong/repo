@@ -22,76 +22,20 @@
         --shadow: rgba(0, 0, 0, 0.4);
       }
     }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-    }
-    header {
-      text-align: center;
-      padding: 60px 20px 30px;
-    }
-    header h1 {
-      font-size: 2.2em;
-      margin-bottom: 10px;
-    }
-    header p {
-      color: #888;
-      font-size: 1em;
-    }
-    .container {
-      display: grid;
-      gap: 20px;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      padding: 0 20px 60px;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-    .card {
-      background: var(--card);
-      border-radius: 16px;
-      box-shadow: 0 4px 12px var(--shadow);
-      padding: 20px;
-      transition: transform 0.2s ease;
-    }
-    .card:hover {
-      transform: translateY(-5px);
-    }
-    .card img {
-      width: 64px;
-      height: 64px;
-      border-radius: 12px;
-    }
-    .card h3 {
-      margin: 15px 0 8px;
-      font-size: 1.2em;
-    }
-    .card p {
-      color: #666;
-      font-size: 0.9em;
-      line-height: 1.4;
-    }
-    footer {
-      text-align: center;
-      padding: 20px;
-      font-size: 0.8em;
-      color: #aaa;
-    }
-    .btn {
-      display: inline-block;
-      margin-top: 10px;
-      background: var(--accent);
-      color: #fff;
-      padding: 8px 16px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-size: 0.9em;
-      transition: background 0.2s ease;
-    }
-    .btn:hover {
-      background: #005ecb;
-    }
+    body {margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;background-color:var(--bg);color:var(--text);}
+    header{text-align:center;padding:60px 20px 30px;}
+    header h1{font-size:2.2em;margin-bottom:10px;}
+    header p{color:#888;font-size:1em;}
+    .btn{display:inline-block;margin-top:10px;background:var(--accent);color:#fff;padding:8px 16px;border-radius:8px;text-decoration:none;font-size:0.9em;transition:background 0.2s;}
+    .btn:hover{background:#005ecb;}
+    .container{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));padding:0 20px 60px;max-width:1000px;margin:0 auto;}
+    .card{background:var(--card);border-radius:16px;box-shadow:0 4px 12px var(--shadow);padding:20px;transition:transform 0.2s;}
+    .card:hover{transform:translateY(-5px);}
+    .card img{width:64px;height:64px;border-radius:12px;}
+    .card h3{margin:15px 0 8px;font-size:1.2em;}
+    .card p{color:#666;font-size:0.9em;line-height:1.4;}
+    footer{text-align:center;padding:20px;font-size:0.8em;color:#aaa;}
+    code{word-break:break-all;}
   </style>
 </head>
 <body>
@@ -102,25 +46,75 @@
     <p style="margin-top:10px;">或手动添加：<br><code>https://ldppkong.github.io/jailbreak-repo/</code></p>
   </header>
 
-  <div class="container">
-    <!-- 示例插件卡片（你可以自行复制修改） -->
-    <div class="card">
-      <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="plugin">
-      <h3>AppData</h3>
-      <p>一个用于查看 App 数据信息的实用插件。</p>
-      <p><b>版本：</b>1.3.6<br><b>架构：</b>iphoneos-arm64</p>
-    </div>
-
-    <div class="card">
-      <img src="https://cdn-icons-png.flaticon.com/512/1828/1828859.png" alt="plugin">
-      <h3>自定义插件</h3>
-      <p>你的专属 tweak，用于展示功能或界面美化。</p>
-      <p><b>版本：</b>1.0<br><b>架构：</b>iphoneos-arm</p>
-    </div>
+  <div class="container" id="plugin-container">
+    <p>正在加载插件列表...</p>
   </div>
 
   <footer>
     © 2025 LDPPKONG Repo — Powered by GitHub Pages
   </footer>
+
+  <script>
+    // 插件图标映射表（可根据你实际插件名修改）
+    const iconMap = {
+      "appdata": "https://cdn-icons-png.flaticon.com/512/1828/1828884.png",
+      "tweak": "https://cdn-icons-png.flaticon.com/512/1828/1828859.png",
+      "default": "https://cdn-icons-png.flaticon.com/512/1828/1828827.png"
+    };
+
+    function getIcon(packageName) {
+      for (const key in iconMap) {
+        if (key !== "default" && packageName.toLowerCase().includes(key)) {
+          return iconMap[key];
+        }
+      }
+      return iconMap["default"];
+    }
+
+    async function loadPackages() {
+      const container = document.getElementById('plugin-container');
+      container.innerHTML = '';
+
+      try {
+        const res = await fetch('Packages');
+        if (!res.ok) throw new Error('无法读取 Packages 文件');
+        const text = await res.text();
+
+        const entries = text.split('\n\n');
+        if (!entries.length) {
+          container.innerHTML = '<p>没有找到任何插件.</p>';
+          return;
+        }
+
+        for (let entry of entries) {
+          if (!entry.trim()) continue;
+
+          const lines = entry.split('\n');
+          let pkg = '', version = '', arch = '', desc = '';
+          for (let line of lines) {
+            if (line.startsWith('Package:')) pkg = line.replace('Package:','').trim();
+            if (line.startsWith('Version:')) version = line.replace('Version:','').trim();
+            if (line.startsWith('Architecture:')) arch = line.replace('Architecture:','').trim();
+            if (line.startsWith('Description:')) desc = line.replace('Description:','').trim();
+          }
+
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <img src="${getIcon(pkg)}" alt="plugin">
+            <h3>${pkg}</h3>
+            <p>${desc}</p>
+            <p><b>版本：</b>${version}<br><b>架构：</b>${arch}</p>
+          `;
+          container.appendChild(card);
+        }
+
+      } catch (err) {
+        container.innerHTML = '<p>加载插件列表失败：' + err.message + '</p>';
+      }
+    }
+
+    loadPackages();
+  </script>
 </body>
 </html>
