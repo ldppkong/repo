@@ -1,8 +1,8 @@
-Origin: LDPPKONG Repo
-Label: LDPPKONG Repo
+Origin: Ldkong
+Label: Ldkong Repo
 Suite: stable
 Version: 1.0
 Codename: ios
 Architectures: iphoneos-arm64
 Components: main
-Description: LDPPKONG Jailbreak Repo
+Description: Ldkong Repo
