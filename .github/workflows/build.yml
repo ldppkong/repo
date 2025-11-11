@@ -16,22 +16,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout 仓库
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # 2️⃣ 安装 dpkg-dev
       - name: Install dpkg-dev
         run: |
           sudo apt update
           sudo apt install -y dpkg-dev gzip
 
+      # 3️⃣ 确保 debs 文件夹存在
       - name: Ensure debs folder exists
         run: mkdir -p debs
 
+      # 4️⃣ 生成 Packages 和 Packages.gz
       - name: Generate Packages
         run: |
           dpkg-scanpackages ./debs /dev/null > Packages
           gzip -k -f Packages
 
+      # 5️⃣ 生成 Release 文件（Sileo 兼容 arm64）
       - name: Generate Release
         run: |
           printf "Origin: LDPPKONG Repo\n" > Release
@@ -43,17 +48,25 @@ jobs:
           printf "Components: main\n" >> Release
           printf "Description: LDPPKONG Jailbreak Repo\n" >> Release
 
+      # 6️⃣ 生成 index.html（从模板复制）
       - name: Generate index.html from template
         run: |
           cp index_template.html index.html
           sed -i 's|\${repo_url}|https://ldppkong.github.io/jailbreak-repo/|g' index.html
 
+      # 7️⃣ Commit & Push（自动处理远程冲突）
       - name: Commit and Push All
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           git add Packages Packages.gz Release index.html
-          git diff --cached --quiet && echo "No changes to commit." || git commit -m "Update Packages and index.html"
-          git push
+          git diff --cached --quiet || git commit -m "Update Packages and index.html"
+
+          # 拉取远程最新内容，允许 fast-forward
+          git pull --rebase origin main
+
+          # 推送到远程
+          git push origin main
