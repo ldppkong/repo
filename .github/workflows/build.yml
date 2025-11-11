@@ -36,25 +36,28 @@ jobs:
           dpkg-scanpackages ./debs /dev/null > Packages
           gzip -k -f Packages
 
-      # 5️⃣ 生成 Release 文件（Sileo 兼容 arm64）
+      # 5️⃣ 生成 Release 文件（自定义 Label / Origin，Sileo 兼容 arm64）
       - name: Generate Release
         run: |
-          printf "Origin: LDPPKONG Repo\n" > Release
-          printf "Label: LDPPKONG Repo\n" >> Release
+          ORIGIN_NAME="Ldkong"       # 仓库作者/来源
+          LABEL_NAME="Ldkong Repo"       # Sileo / Zebra 中显示的源名字
+
+          printf "Origin: %s\n" "$ORIGIN_NAME" > Release
+          printf "Label: %s\n" "$LABEL_NAME" >> Release
           printf "Suite: stable\n" >> Release
           printf "Version: 1.0\n" >> Release
           printf "Codename: ios\n" >> Release
           printf "Architectures: iphoneos-arm64\n" >> Release
           printf "Components: main\n" >> Release
-          printf "Description: LDPPKONG Jailbreak Repo\n" >> Release
+          printf "Description: %s\n" "$LABEL_NAME" >> Release
 
-      # 6️⃣ 生成 index.html（从模板复制）
+      # 6️⃣ 生成 index.html（从模板 index_template.html 复制）
       - name: Generate index.html from template
         run: |
           cp index_template.html index.html
           sed -i 's|\${repo_url}|https://ldppkong.github.io/jailbreak-repo/|g' index.html
 
-      # 7️⃣ Commit & Push（仅在有变化时，自动处理远程冲突）
+      # 7️⃣ Commit & Push（仅在文件变化时，自动处理远程冲突）
       - name: Commit and Push All
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
